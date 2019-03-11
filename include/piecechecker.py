@@ -19,39 +19,41 @@ class PieceChecker:
                              'q': self.queen,
                              'k': self.king, }
 
-    def checkMovesPiece(self, position):
-        p = self.board.checkPosition(position)
-        # print position, p
+    def checkMovesPiece(self, position, board):
+        p = board.checkPosition(position)
         if not p == " ":
-            return self.pieceOptions[p.lower()](position, not p.isupper())
+            return self.pieceOptions[p.lower()](position, not p.isupper(), board)
         return " ", []
 
-    def pawn(self, position, white):
-        # TODO: En passant rule
+    def pawn(self, position, white, board):
+        # TODO: En passant rule AND PAWN PROMOTION CURRENTLY THIS MAKES THE GAME CRASH!
         returnPositions = []
         direction = 1 + (-2 * int(not white))
-        (x, y) = self.board.chessNotationToXY(position)
+        (x, y) = board.chessNotationToXY(position)
         inStartPose = (white and y == 1) or (not white and y == 6)
 
         # first check non-offensive movement.
         for i in range(0, 1 + int(inStartPose)):
-            if not self.board.board[y + (i + 1) * direction][x] == " ":
+            if not board.board[y + (i + 1) * direction][x] == " ":
                 break
-            returnPositions.append(self.board.xyToChessNotation(x, y + (i + 1) * direction))
+            returnPositions.append(
+                board.xyToChessNotation(x, y + (i + 1) * direction))
 
         # check take possibility
-        if (not x - 1 == -1 and not self.board.board[y + direction][x - 1] == " " and
-                self.board.board[y + direction][x - 1].isupper() == white):
-            returnPositions.append(self.board.xyToChessNotation(x - 1, y + direction))
-        if (not x + 1 == 8 and not self.board.board[y + direction][x + 1] == " " and
-                self.board.board[y + direction][x + 1].isupper() == white):
-            returnPositions.append(self.board.xyToChessNotation(x + 1, y + direction))
+        if (not x - 1 == -1 and not board.board[y + direction][x - 1] == " " and
+                board.board[y + direction][x - 1].isupper() == white):
+            returnPositions.append(
+                board.xyToChessNotation(x - 1, y + direction))
+        if (not x + 1 == 8 and not board.board[y + direction][x + 1] == " " and
+                board.board[y + direction][x + 1].isupper() == white):
+            returnPositions.append(
+                board.xyToChessNotation(x + 1, y + direction))
 
         return position, returnPositions
 
-    def knight(self, position, white):
+    def knight(self, position, white, board):
         returnPositions = []
-        (x, y) = self.board.chessNotationToXY(position)
+        (x, y) = board.chessNotationToXY(position)
 
         for move in self.knightMoves:
             if(
@@ -59,17 +61,18 @@ class PieceChecker:
                 not (y + move[1] < 0 or y + move[1] > 7)
             ):
                 if (
-                    self.board.board[y + move[1]][x + move[0]] == " " or
+                    board.board[y + move[1]][x + move[0]] == " " or
                     (
-                        not self.board.board[y + move[1]][x + move[0]] == " " and
-                        self.board.board[y + move[1]][x + move[0]].isupper() == white
+                        not board.board[y + move[1]][x + move[0]] == " " and
+                        board.board[y + move[1]][x + move[0]].isupper() == white
                     )
                 ):
-                    returnPositions.append(self.board.xyToChessNotation(x + move[0], y + move[1]))
+                    returnPositions.append(
+                        board.xyToChessNotation(x + move[0], y + move[1]))
 
         return position, returnPositions
 
-    def rook(self, position, white):
+    def rook(self, position, white, board):
         returnPositions = []
         (x, y) = self.board.chessNotationToXY(position)
 
@@ -79,21 +82,22 @@ class PieceChecker:
                 while not (y + (i * vertical * horizontal) < 0 or y + (i * vertical * horizontal) > 7 or
                            x + (i * vertical * int(not horizontal)) < 0 or x + (i * vertical * int(not horizontal)) > 7):
                     if (
-                        self.board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] == " " or
+                        board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] == " " or
                         (
-                            not self.board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] == " " and
-                            self.board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))].isupper() == white
+                            not board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] == " " and
+                            board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))].isupper() == white
                         )
                     ):
-                        returnPositions.append(self.board.xyToChessNotation(x + (i * vertical * int(not horizontal)), y + i * vertical * horizontal))
-                        if self.board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] != " ":
+                        returnPositions.append(self.board.xyToChessNotation(
+                            x + (i * vertical * int(not horizontal)), y + i * vertical * horizontal))
+                        if board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] != " ":
                             break
                     else:
                         break
                     i += 1
         return position, returnPositions
 
-    def bishop(self, position, white):
+    def bishop(self, position, white, board):
         returnPositions = []
         (x, y) = self.board.chessNotationToXY(position)
 
@@ -101,12 +105,13 @@ class PieceChecker:
             for j in range(-1, 2, 2):
                 d = 1
                 while not ((y + i * d) < 0 or(y + i * d) > 7 or (x + j * d) < 0 or (x + j * d) > 7):
-                    if self.board.board[y + i * d][x + j * d] == " " or (
-                        not self.board.board[y + i * d][x + j * d] == " " and
-                        self.board.board[y + i * d][x + j * d].isupper() == white
+                    if board.board[y + i * d][x + j * d] == " " or (
+                        not board.board[y + i * d][x + j * d] == " " and
+                        board.board[y + i * d][x + j * d].isupper() == white
                     ):
-                        returnPositions.append(self.board.xyToChessNotation(x + j * d, y + i * d))
-                        if self.board.board[y + i * d][x + j * d] != " ":
+                        returnPositions.append(
+                            board.xyToChessNotation(x + j * d, y + i * d))
+                        if board.board[y + i * d][x + j * d] != " ":
                             break
                     else:
                         break
@@ -114,20 +119,21 @@ class PieceChecker:
 
         return position, returnPositions
 
-    def queen(self, position, white):
+    def queen(self, position, white, board):
         returnPositions = []
-        (x, y) = self.board.chessNotationToXY(position)
+        (x, y) = board.chessNotationToXY(position)
 
         for i in range(-1, 2, 2):
             for j in range(-1, 2, 2):
                 d = 1
                 while not ((y + i * d) < 0 or(y + i * d) > 7 or (x + j * d) < 0 or (x + j * d) > 7):
-                    if self.board.board[y + i * d][x + j * d] == " " or (
-                        not self.board.board[y + i * d][x + j * d] == " " and
-                        self.board.board[y + i * d][x + j * d].isupper() == white
+                    if board.board[y + i * d][x + j * d] == " " or (
+                        not board.board[y + i * d][x + j * d] == " " and
+                        board.board[y + i * d][x + j * d].isupper() == white
                     ):
-                        returnPositions.append(self.board.xyToChessNotation(x + j * d, y + i * d))
-                        if self.board.board[y + i * d][x + j * d] != " ":
+                        returnPositions.append(
+                            board.xyToChessNotation(x + j * d, y + i * d))
+                        if board.board[y + i * d][x + j * d] != " ":
                             break
                     else:
                         break
@@ -139,14 +145,15 @@ class PieceChecker:
                 while not (y + (i * vertical * horizontal) < 0 or y + (i * vertical * horizontal) > 7 or
                            x + (i * vertical * int(not horizontal)) < 0 or x + (i * vertical * int(not horizontal)) > 7):
                     if (
-                        self.board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] == " " or
+                        board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] == " " or
                         (
-                            not self.board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] == " " and
-                            self.board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))].isupper() == white
+                            not board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] == " " and
+                            board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))].isupper() == white
                         )
                     ):
-                        returnPositions.append(self.board.xyToChessNotation(x + (i * vertical * int(not horizontal)), y + i * vertical * horizontal))
-                        if self.board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] != " ":
+                        returnPositions.append(self.board.xyToChessNotation(
+                            x + (i * vertical * int(not horizontal)), y + i * vertical * horizontal))
+                        if board.board[y + i * vertical * horizontal][x + (i * vertical * int(not horizontal))] != " ":
                             break
                     else:
                         break
@@ -154,20 +161,21 @@ class PieceChecker:
 
         return position, returnPositions
 
-    def king(self, position, white):
+    def king(self, position, white, board):
         # TODO: king check
         returnPositions = []
-        (x, y) = self.board.chessNotationToXY(position)
+        (x, y) = board.chessNotationToXY(position)
         for i in range(-1, 2):
             for j in range(-1, 2):
                 if not (x + i < 0 or x + i > 7 or y + j < 0 or y + j > 7) and not(i == 0 and j == 0):
                     if (
-                        self.board.board[y + j][x + i] == " " or
+                        board.board[y + j][x + i] == " " or
                         (
-                            not self.board.board[y + j][x + i] == " " and
-                            self.board.board[y + j][x + i].isupper() == white
+                            not board.board[y + j][x + i] == " " and
+                            board.board[y + j][x + i].isupper() == white
                         )
                     ):
-                        returnPositions.append(self.board.xyToChessNotation(x + i, y + j))
+                        returnPositions.append(
+                            board.xyToChessNotation(x + i, y + j))
 
         return position, returnPositions

@@ -8,8 +8,8 @@ class GameLoader:
         self.mr = mr
         self.be = be
 
-        self.speeds = [[0, 0.1], [50, 3]]  # , [5, 2], [10, 0.2], [22, 5]]
-        self.slowBefore = 20
+        self.speeds = [[0, 1], [50, 3]]  # , [5, 2], [10, 0.2], [22, 5]]
+        self.slowBefore = 1
 
         with open("records/{0}.txt".format(filename), "r") as gamefile:
             for line in gamefile:
@@ -38,12 +38,13 @@ class GameLoader:
         return int(s[0]), s[1][:numberSplit], s[1][numberSplit:]
 
     def move(self, num, annotation, white):
-        f, t, c = self.mr.resolve(annotation, white)
+        f, t, c = self.mr.resolve(annotation, white, self.main.board)
         speed = 1
         for s in self.speeds:
             if num > s[0]:
                 speed = s[1]
         if not c:
+            # TODO
             self.main.moveAndVisualise(f, t, speed, True)
         else:
             self.main.moveAndVisualise(f[0], t[0], 0, True)

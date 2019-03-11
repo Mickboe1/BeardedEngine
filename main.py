@@ -4,6 +4,7 @@ from include.piecechecker import PieceChecker
 from include.gameloader import GameLoader
 from include.moveresolver import MoveResolver
 from include.boardevaluator import BoardEvaluator
+from include.ai import Ai
 import os
 import time
 
@@ -14,7 +15,8 @@ class BeardedEngine:
         self.pc = PieceChecker(self.board)
         self.be = BoardEvaluator(self.pc)
         self.mr = MoveResolver(self.board, self.pc)
-        self.gl = GameLoader(self, self.mr, self.be, "simplesteps")
+        # self.gl = GameLoader(self, self.mr, self.be, "record")
+        self.ai = Ai(self, self.board, self.be, self.mr, self.pc)
 
     def moveAndVisualise(self, begin, end, sleeptimer=1, fancy=False):
         self.board.movePiece(begin, end)
@@ -33,7 +35,7 @@ class BeardedEngine:
 
 
 if __name__ == "__main__":
-    pre_run_timer = 1
+    pre_run_timer = 0
 
     os.system("clear")
     os.system("python -m unittest -v testing")

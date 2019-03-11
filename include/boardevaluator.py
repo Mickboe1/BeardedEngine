@@ -23,16 +23,19 @@ class BoardEvaluator:
             material = 0
             for p in (board.whitePieces if side else board.blackPieces):
                 # POSSIBLE MOVES
-                pm += len(self.pc.checkMovesPiece(p[1])[1])
+                pm += len(self.pc.checkMovesPiece(p[1], board)[1])
 
                 # MATERIAL
-                material += self.pieceValues[self.pieces.index(p[0].lower())] if not p[0].lower() == "k" else 0
+                material += self.pieceValues[self.pieces.index(
+                    p[0].lower())] if not p[0].lower() == "k" else 0
                 if p[0].lower() == "p" and not int(p[1][1:]) == 7 and not board.checkPosition(p[1][:1] + str(int(p[1][1:]) + 1)) == " ":
                     fb[int(not side)][0] += 1  # TODO fix
                     penalty += 1
 
-            occupied = [pawn[1][:1] for pawn in (board.whitePieces if side else board.blackPieces) if pawn[0].lower() == "p"]
-            occupied_count = [occupied.count(self.squareLetter[i]) for i in range(8)]
+            occupied = [pawn[1][:1] for pawn in (
+                board.whitePieces if side else board.blackPieces) if pawn[0].lower() == "p"]
+            occupied_count = [occupied.count(
+                self.squareLetter[i]) for i in range(8)]
             penalty += sum([x - 1 for x in occupied_count if x > 1])
             fb[int(not side)][1] = penalty - fb[int(not side)][0]
             # print occupied_count, occupied
@@ -41,8 +44,10 @@ class BoardEvaluator:
             for i in range(len(occupied_count)):
                 for direction in [-1, 1]:
                     if not i + direction < 0 and not i + direction > 7:
-                        isolated_count[i] += 1 if occupied_count[i + direction] > 0 else 0
-            penalty += sum(occupied_count[i] for i in occupied_count if occupied_count[i] > 0 and isolated_count == 0)
+                        isolated_count[i] += 1 if occupied_count[i +
+                                                                 direction] > 0 else 0
+            penalty += sum(occupied_count[i]
+                           for i in occupied_count if occupied_count[i] > 0 and isolated_count == 0)
             fb[int(not side)][2] = penalty - fb[int(not side)][1]
             # # print "{3} blocked: {0}  double: {1}  isolated: {2}".format(fb[int(not side)][0], fb[int(not side)][1], fb[int(not side)][2], "white" if side else "black")
 
@@ -53,9 +58,10 @@ class BoardEvaluator:
                 w += (pm * 0.1) - (penalty * 0.5) + material
             else:
                 b += (pm * 0.1) - (penalty * 0.5) + material
-        print fb
+        # print fb
 
-        self.score = b - w
+        self.score = w - b
+        return w - b
 
     def printScore(self, fancy=False):
         line = ""

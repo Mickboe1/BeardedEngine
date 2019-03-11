@@ -4,6 +4,7 @@ class Board:
         self.board = []
         self.whitePieces = []
         self.blackPieces = []
+        self.mate = False
 
         self.generateSqaures()
         self.setupPieces()
@@ -12,9 +13,12 @@ class Board:
             for i in range(8):
                 if not self.board[j][i] == " ":
                     if self.board[j][i].isupper():
-                        self.blackPieces.append([self.board[j][i], self.xyToChessNotation(i, j)])
+                        self.blackPieces.append(
+                            [self.board[j][i], self.xyToChessNotation(i, j)])
                     else:
-                        self.whitePieces.append([self.board[j][i], self.xyToChessNotation(i, j)])
+                        self.whitePieces.append(
+                            [self.board[j][i], self.xyToChessNotation(i, j)])
+        print self.board
 
     def generateSqaures(self):
         self.board = [[' ' for y in range(8)] for x in range(8)]
@@ -33,12 +37,16 @@ class Board:
         rnb = ['r', 'n', 'b']
         kq = ['q', 'k']
         pawn = 'p'
+        # pawn = 'p'
+        # kq = [' ', ' ']
+        # rnb = [' ', 'n', ' ']
         if colour == 'b':
             kq = [x.upper() for x in reversed(kq)]
             rnb = [x.upper() for x in rnb]
             pawn = pawn.upper()
 
         return [rnb + kq + list(reversed(rnb)), [pawn for y in range(8)]]
+        # return [rnb + kq + list(reversed([' ', ' ', ' '])), [pawn for y in range(8)]]
 
     # Piece Manipulation
     def chessNotationToXY(self, position):
@@ -62,7 +70,8 @@ class Board:
             position = self.xyToChessNotation(yt, xt)
             for piece in (self.whitePieces if not self.board[xt][yt].isupper() else self.blackPieces):
                 if position == piece[1]:
-                    (self.whitePieces if not self.board[xt][yt].isupper() else self.blackPieces).remove(piece)
+                    (self.whitePieces if not self.board[xt][yt].isupper(
+                    ) else self.blackPieces).remove(piece)
 
         for p in (self.whitePieces if not self.board[xf][yf].isupper() else self.blackPieces):
             if p[1] == f:
@@ -124,7 +133,8 @@ class Board:
                     else:
                         for k in range(0, len(pieces)):
                             if pieces[k] == row[j]:
-                                r += str(piecesVisualization[k])[7 * i:7 * (i + 1)]
+                                r += str(piecesVisualization[k]
+                                         )[7 * i:7 * (i + 1)]
                     r += '|'
                 print r + str(ri) if i == 1 else r
             print boardDefiderRow
